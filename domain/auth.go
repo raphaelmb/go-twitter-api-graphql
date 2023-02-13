@@ -9,6 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var passwordCost = bcrypt.DefaultCost
+
 type AuthService struct {
 	UserRepo twitter.UserRepo
 }
@@ -38,7 +40,7 @@ func (as *AuthService) Register(ctx context.Context, input twitter.RegisterInput
 		Username: input.Username,
 	}
 
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), passwordCost)
 	if err != nil {
 		return twitter.AuthResponse{}, fmt.Errorf("error hashing password: %v", err)
 	}
@@ -48,6 +50,29 @@ func (as *AuthService) Register(ctx context.Context, input twitter.RegisterInput
 	user, err = as.UserRepo.Create(ctx, user)
 	if err != nil {
 		return twitter.AuthResponse{}, fmt.Errorf("error creating user: %v", err)
+	}
+
+	return twitter.AuthResponse{AccessToken: "token", User: user}, nil
+}
+
+func (as *AuthService) Login(ctx context.Context, input twitter.LoginInput) (twitter.AuthResponse, error) {
+	input.Sanitize()
+	if err := input.Validate(); err != nil {
+		return twitter.AuthResponse{}, err
+	}
+
+	user, err := as.UserRepo.GetByEmail(ctx, input.Email)
+	if err != nil {
+		switch {
+		case errors.Is(err, twitter.ErrNotFound):
+			return twitter.AuthResponse{}, twitter.ErrBadCredentials
+		default:
+			return twitter.AuthResponse{}, err
+		}
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+		return twitter.AuthResponse{}, twitter.ErrBadCredentials
 	}
 
 	return twitter.AuthResponse{AccessToken: "token", User: user}, nil
