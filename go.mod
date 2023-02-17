@@ -3,6 +3,7 @@ module github.com/raphaelmb/go-twitter-api-graphql
 go 1.20
 
 require (
+	github.com/georgysavva/scany v1.2.1
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/jackc/pgx/v4 v4.18.0
 	github.com/joho/godotenv v1.5.1
