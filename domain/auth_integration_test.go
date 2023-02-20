@@ -7,14 +7,16 @@ import (
 	"testing"
 
 	"github.com/raphaelmb/go-twitter-api-graphql"
+	"github.com/raphaelmb/go-twitter-api-graphql/faker"
 	"github.com/raphaelmb/go-twitter-api-graphql/test_helpers"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationAuthService_Register(t *testing.T) {
+
 	validInput := twitter.RegisterInput{
-		Username:        "test",
-		Email:           "test@gmail.com",
+		Username:        faker.Username(),
+		Email:           faker.Email(),
 		Password:        "password",
 		ConfirmPassword: "password",
 	}
@@ -39,7 +41,7 @@ func TestIntegrationAuthService_Register(t *testing.T) {
 		_, err := authService.Register(ctx, validInput)
 		require.NoError(t, err)
 
-		_, err = authService.Register(ctx, twitter.RegisterInput{Username: validInput.Username, Email: "email@email.com", Password: "passwd", ConfirmPassword: "passwd"})
+		_, err = authService.Register(ctx, twitter.RegisterInput{Username: validInput.Username, Email: "test@gmail.com", Password: "passwd", ConfirmPassword: "passwd"})
 		require.ErrorIs(t, err, twitter.ErrUsernameTaken)
 	})
 
@@ -50,7 +52,7 @@ func TestIntegrationAuthService_Register(t *testing.T) {
 		_, err := authService.Register(ctx, validInput)
 		require.NoError(t, err)
 
-		_, err = authService.Register(ctx, twitter.RegisterInput{Username: "test2", Email: "test@gmail.com", Password: "passwd", ConfirmPassword: "passwd"})
+		_, err = authService.Register(ctx, twitter.RegisterInput{Username: "test", Email: validInput.Email, Password: "passwd", ConfirmPassword: "passwd"})
 		require.ErrorIs(t, err, twitter.ErrEmailTaken)
 	})
 }

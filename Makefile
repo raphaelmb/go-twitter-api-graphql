@@ -19,3 +19,9 @@ migration:
 
 run:
 	go run cmd/graphqlserver/main.go
+
+databaseup:
+	docker compose up -d
+
+databasedown:
+	docker compose down
