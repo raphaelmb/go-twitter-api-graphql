@@ -25,3 +25,6 @@ databaseup:
 
 databasedown:
 	docker compose down
+
+generate:
+	go generate ./..
