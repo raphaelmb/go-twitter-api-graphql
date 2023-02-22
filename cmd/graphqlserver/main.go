@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/raphaelmb/go-twitter-api-graphql/config"
+	"github.com/raphaelmb/go-twitter-api-graphql/domain"
 	"github.com/raphaelmb/go-twitter-api-graphql/graph"
 	"github.com/raphaelmb/go-twitter-api-graphql/postgres"
 )
@@ -32,11 +33,19 @@ func main() {
 	router.Use(middleware.RedirectSlashes)
 	router.Use(middleware.Timeout(time.Second * 60))
 
+	// repo
+	userRepo := postgres.NewUserRepo(db)
+
+	// service
+	authService := domain.NewAuthService(userRepo)
+
 	router.Handle("/", playground.Handler("twitter clone", "/query"))
 	router.Handle("/query", handler.NewDefaultServer(
 		graph.NewExecutableSchema(
 			graph.Config{
-				Resolvers: &graph.Resolver{},
+				Resolvers: &graph.Resolver{
+					AuthService: authService,
+				},
 			},
 		),
 	))
