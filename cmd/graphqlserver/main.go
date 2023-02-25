@@ -13,6 +13,7 @@ import (
 	"github.com/raphaelmb/go-twitter-api-graphql/config"
 	"github.com/raphaelmb/go-twitter-api-graphql/domain"
 	"github.com/raphaelmb/go-twitter-api-graphql/graph"
+	"github.com/raphaelmb/go-twitter-api-graphql/jwt"
 	"github.com/raphaelmb/go-twitter-api-graphql/postgres"
 )
 
@@ -37,8 +38,10 @@ func main() {
 	userRepo := postgres.NewUserRepo(db)
 
 	// service
+	authTokenService := jwt.NewTokenService(conf)
 	authService := domain.NewAuthService(userRepo)
 
+	router.Use(authMiddleware(authTokenService))
 	router.Handle("/", playground.Handler("twitter clone", "/query"))
 	router.Handle("/query", handler.NewDefaultServer(
 		graph.NewExecutableSchema(
