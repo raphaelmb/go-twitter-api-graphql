@@ -12,12 +12,14 @@ import (
 var passwordCost = bcrypt.DefaultCost
 
 type AuthService struct {
-	UserRepo twitter.UserRepo
+	AuthTokenService twitter.AuthTokenService
+	UserRepo         twitter.UserRepo
 }
 
-func NewAuthService(ur twitter.UserRepo) *AuthService {
+func NewAuthService(ur twitter.UserRepo, ats twitter.AuthTokenService) *AuthService {
 	return &AuthService{
-		UserRepo: ur,
+		AuthTokenService: ats,
+		UserRepo:         ur,
 	}
 }
 
@@ -52,7 +54,12 @@ func (as *AuthService) Register(ctx context.Context, input twitter.RegisterInput
 		return twitter.AuthResponse{}, fmt.Errorf("error creating user: %v", err)
 	}
 
-	return twitter.AuthResponse{AccessToken: "token", User: user}, nil
+	accessToken, err := as.AuthTokenService.CreateAccessToken(ctx, user)
+	if err != nil {
+		return twitter.AuthResponse{}, twitter.ErrGenAccessToken
+	}
+
+	return twitter.AuthResponse{AccessToken: accessToken, User: user}, nil
 }
 
 func (as *AuthService) Login(ctx context.Context, input twitter.LoginInput) (twitter.AuthResponse, error) {
@@ -75,5 +82,10 @@ func (as *AuthService) Login(ctx context.Context, input twitter.LoginInput) (twi
 		return twitter.AuthResponse{}, twitter.ErrBadCredentials
 	}
 
-	return twitter.AuthResponse{AccessToken: "token", User: user}, nil
+	accessToken, err := as.AuthTokenService.CreateAccessToken(ctx, user)
+	if err != nil {
+		return twitter.AuthResponse{}, twitter.ErrGenAccessToken
+	}
+
+	return twitter.AuthResponse{AccessToken: accessToken, User: user}, nil
 }

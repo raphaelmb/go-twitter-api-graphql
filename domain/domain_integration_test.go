@@ -11,15 +11,17 @@ import (
 
 	"github.com/raphaelmb/go-twitter-api-graphql"
 	"github.com/raphaelmb/go-twitter-api-graphql/config"
+	"github.com/raphaelmb/go-twitter-api-graphql/jwt"
 	"github.com/raphaelmb/go-twitter-api-graphql/postgres"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	conf        *config.Config
-	db          *postgres.DB
-	authService twitter.AuthService
-	userRepo    twitter.UserRepo
+	conf             *config.Config
+	db               *postgres.DB
+	authTokenService twitter.AuthTokenService
+	authService      twitter.AuthService
+	userRepo         twitter.UserRepo
 )
 
 func TestMain(m *testing.M) {
@@ -43,7 +45,8 @@ func TestMain(m *testing.M) {
 
 	userRepo = postgres.NewUserRepo(db)
 
-	authService = NewAuthService(userRepo)
+	authTokenService = jwt.NewTokenService(conf)
+	authService = NewAuthService(userRepo, authTokenService)
 
 	os.Exit(m.Run())
 }
