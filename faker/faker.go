@@ -45,3 +45,7 @@ func ID() string {
 func Email() string {
 	return fmt.Sprintf("%s@example.com", RandStringRunesLower(RandInt(5, 10)))
 }
+
+func RandStr(n int) string {
+	return RandStringRunes(n)
+}
