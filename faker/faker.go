@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/raphaelmb/go-twitter-api-graphql/uuid"
 )
 
 func init() {
@@ -40,6 +42,10 @@ func Username() string {
 
 func ID() string {
 	return fmt.Sprintf("%s-%s-%s-%s", RandStringRunes(4), RandStringRunes(4), RandStringRunes(4), RandStringRunes(4))
+}
+
+func UUID() string {
+	return uuid.Generate()
 }
 
 func Email() string {
