@@ -101,3 +101,50 @@ func TestIntegrationTweetService_All(t *testing.T) {
 		require.Len(t, tweets, 3)
 	})
 }
+
+func TestIntergrationTweetService_Delete(t *testing.T) {
+	t.Run("not auth user cannot delete a tweet", func(t *testing.T) {
+		ctx := context.Background()
+		err := tweetService.Delete(ctx, faker.UUID())
+		require.ErrorIs(t, err, twitter.ErrUnauthenticated)
+	})
+
+	t.Run("cannot delete tweet if not the owner", func(t *testing.T) {
+		ctx := context.Background()
+		defer test_helpers.TearDownDB(ctx, t, db)
+		otherUser := test_helpers.CreateUser(ctx, t, userRepo)
+		currentUser := test_helpers.CreateUser(ctx, t, userRepo)
+
+		tweet := test_helpers.CreateTweet(ctx, t, tweetRepo, otherUser.ID)
+
+		ctx = test_helpers.LoginUser(ctx, t, currentUser)
+
+		_, err := tweetRepo.GetByID(ctx, tweet.ID)
+		require.NoError(t, err)
+
+		err = tweetService.Delete(ctx, tweet.ID)
+		require.ErrorIs(t, err, twitter.ErrForbidden)
+
+		_, err = tweetRepo.GetByID(ctx, tweet.ID)
+		require.NoError(t, err)
+	})
+
+	t.Run("can delete a tweet", func(t *testing.T) {
+		ctx := context.Background()
+		defer test_helpers.TearDownDB(ctx, t, db)
+		currentUser := test_helpers.CreateUser(ctx, t, userRepo)
+
+		tweet := test_helpers.CreateTweet(ctx, t, tweetRepo, currentUser.ID)
+
+		ctx = test_helpers.LoginUser(ctx, t, currentUser)
+
+		_, err := tweetRepo.GetByID(ctx, tweet.ID)
+		require.NoError(t, err)
+
+		err = tweetService.Delete(ctx, tweet.ID)
+		require.NoError(t, err)
+
+		_, err = tweetRepo.GetByID(ctx, tweet.ID)
+		require.ErrorIs(t, err, twitter.ErrNotFound)
+	})
+}
