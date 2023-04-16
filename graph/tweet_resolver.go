@@ -51,3 +51,11 @@ func (m *mutationResolver) DeleteTweet(ctx context.Context, id string) (bool, er
 	}
 	return true, nil
 }
+
+func (t *tweetResolver) User(ctx context.Context, obj *Tweet) (*User, error) {
+	user, err := t.UserService.GetByID(ctx, obj.UserID)
+	if err != nil {
+		return nil, buildError(ctx, err)
+	}
+	return mapUser(user), nil
+}
