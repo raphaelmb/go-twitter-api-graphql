@@ -7,7 +7,7 @@ migrate:
 
 rollback:
 	migrate -source file://postgres/migrations \
-					-database "postgres://postgres:postgres@localhost:5432/twitter_clone_dev?sslmode=disable" down
+					-database "postgres://postgres:postgres@localhost:5432/twitter_clone_dev?sslmode=disable" down 1
 
 drop:
 	migrate -source file://postgres/migrations \
