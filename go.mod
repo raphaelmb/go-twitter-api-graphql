@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/jwx v1.2.25
+	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	golang.org/x/crypto v0.6.0
@@ -44,6 +45,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
